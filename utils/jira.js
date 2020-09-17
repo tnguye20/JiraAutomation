@@ -4,7 +4,8 @@ const {
   JIRA_PROTOCOL,
   JIRA_USER,
   JIRA_PASSWD,
-  JIRA_SERVER
+  JIRA_SERVER,
+  JIRA_PORT,
 } = require('../config');
 
 // Initialize
@@ -13,6 +14,5 @@ module.exports.jira = new JiraAPI({
   username: JIRA_USER,
   host: JIRA_SERVER,
   password: JIRA_PASSWD,
-  apiVersion: '2',
-  strictSSL: true
+  port: JIRA_PORT,
 })

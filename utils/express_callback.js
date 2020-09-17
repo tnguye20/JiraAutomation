@@ -6,11 +6,10 @@ module.exports.express_callback = ( controller ) => {
       if( header !== null && header !== undefined){
         res.set(header)
       }
-      res.status(statusCode !== null ? statusCode : 200).json({
+      res.status(statusCode !== undefined ? statusCode : 200).json({
         body
       });
     } catch (err) {
-      console.log(err);
       res.status(400).json({
         isError: true,
         body: err.message

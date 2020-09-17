@@ -1,16 +1,15 @@
 module.exports.makeFindIssues = ({ jira }) => {
   return async ( issues ) => {
     try {
-      if(!Array.isArray(issues)){
-        throw new Error(`Array of Issues required, ${typeof issues} provided`);
-      }
-      const issuePromises = jira.findIssue(issue);
-      return await Promise.all(issuePromises);
+      const issuePromises = [];
+      issues.forEach( issue => issuePromises.push(jira.findIssue(issue)) );
+      let response =  await Promise.allSettled(issuePromises);
+      return response.filter( r => ( r.status === "fulfilled" ) ).map( r => ( r.value ) );
     } catch (err) {
       console.log(err);
       return {
-        isError: true,
-        error: err.msg
+        error: true,
+        errorMsg: err.error.errorMessages
       }
     }
   }
