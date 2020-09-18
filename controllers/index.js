@@ -1,4 +1,8 @@
-const { findIssues, getTicketsFromReleaseRange } = require('../use_cases/');
+const {
+  findIssues,
+  getTicketsFromReleaseRange,
+} = require('../use_cases/');
+
 const { makeFindIssuesController } = require('./makeFindIssues.Controller');
 const { makeGetTicketsFromReleaseRange } = require('./makeGetTicketsFromReleaseRange.Controller');
 
