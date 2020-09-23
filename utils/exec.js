@@ -18,6 +18,6 @@ module.exports.exec = async ({
   } catch (err) {
     console.log(err);
     const { code, stderr, cmd, stdout } = err;
-    return { code, stderr, cmd, stdout };
+    return { code, stderr, cmd, stdout, status: code };
   }
 }
