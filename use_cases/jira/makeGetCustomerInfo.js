@@ -1,14 +1,25 @@
 module.exports.makeGetCustomerInfo = ({ config, extractVersionComponents, requests }) => {
-  return async () => {
+  return async (companyName) => {
       // const params = {
       //   "apiKey": config.JIRA_PASSWD,
       //   "userName": config.JIRA_USER,
       //   "command": "getcompanies",
       // }
     try {
-      let response = await requests.get(`${config.CRM_URL}?apiKey=${config.JIRA_PASSWD}&userName=${config.JIRA_USER}&command=getcompanies`);
+      let response;
+      console.log(companyName);
+      if( companyName === undefined ){
+        response = await requests.get(`${config.CRM_URL}?apiKey=${config.JIRA_PASSWD}&userName=${config.JIRA_USER}&command=getcompanies`);
+      } else {
+        response = await requests.get(`${config.CRM_URL}?apiKey=${config.JIRA_PASSWD}&userName=${config.JIRA_USER}&command=getcompanybyname&companyName=${companyName}`);
+      }
 
-      const { success, companies } = response.data;
+      let { success, companies } = response.data;
+      // Singular company
+      if ( companies === undefined && companyName !== undefined ){
+        response.data.name = companyName;
+        companies = [response.data];
+      }
       if( success === false ) return [];
       response =  {
         customers: {},

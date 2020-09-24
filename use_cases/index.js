@@ -16,5 +16,6 @@ module.exports = {
   getTicketsFromReleaseRange,
   getLog,
   getNextRelease,
-  checkRelease
+  checkRelease,
+  getCustomerInfo
 };

@@ -9,6 +9,9 @@ jiraRouter.post("/findIssues", express_callback(findIssues));
 jiraRouter.post("/getTicketsFromReleaseRange", express_callback(getTicketsFromReleaseRange));
 
 jiraRouter.post("/test", async (req, res) => {
+  const { fields, key } = req.body;
+  console.log(req.body);
+  console.log(key);
   res.json("Please");
 });
 
