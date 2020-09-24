@@ -12,7 +12,7 @@ module.exports.exec = async ({
     if(stderr.length > 0) throw new Error(stderr);
     return {
       status: 0,
-      stdout,
+      stdout: stdout.replace("\n", ""),
       stderr
     };
   } catch (err) {
