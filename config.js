@@ -47,4 +47,8 @@ module.exports = {
   REVIEW_REQUIREMENTS: "31",
   RELEASE_TERMINATE_TRAIN: "1421",
   RELEASE_TERMINATE_INTERNAL: "1431",
+  HOTFIX: "hotfix",
+  RELEASEFIX: "release_bug_fix",
+  RELEASE: "release",
+  SHOWSTOPPER: "Showstopper",
 }

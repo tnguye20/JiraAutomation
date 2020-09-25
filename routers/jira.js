@@ -9,10 +9,25 @@ jiraRouter.post("/findIssues", express_callback(findIssues));
 jiraRouter.post("/getTicketsFromReleaseRange", express_callback(getTicketsFromReleaseRange));
 
 jiraRouter.post("/test", async (req, res) => {
+  const config = require('../config');
+  const { getBranchesFromTicket } = require('../use_cases');
+  const { jira } = require('../utils');
   const { fields, key } = req.body;
-  console.log(req.body);
-  console.log(key);
-  res.json("Please");
+  const {
+      priority,
+      assignee,
+      summary,
+      versions,
+      fixVersions
+    } = fields;
+
+  const options =  {
+    type: ""
+  }
+  if (priority.name === config.SHOWSTOPPER) options.type = config.HOTFIX;
+
+  const response = await getBranchesFromTicket({key, fields, options });
+  res.json(response);
 });
 
 module.exports = jiraRouter;

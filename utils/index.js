@@ -5,7 +5,10 @@ const { extractVersionComponents } = require('./extractVersionComponents');
 const { isLegacyVersion } = require('./isLegacyVersion');
 const { updateGitTags } = require('./updateGitTags');
 const { getNextPatch } = require('./getNextPatch');
+const { getNextPatches } = require('./getNextPatches');
 const { getNextRelease } = require('./getNextRelease');
+const { gitMakeBranch } = require('./gitMakeBranch');
+const { gitMakeMergeReq } = require('./gitMakeMergeReq');
 
 module.exports = {
   express_callback,
@@ -15,4 +18,8 @@ module.exports = {
   isLegacyVersion,
   getNextRelease,
   getNextPatch,
+  getNextPatches,
+  updateGitTags,
+  gitMakeBranch,
+  gitMakeMergeReq
 }

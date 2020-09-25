@@ -1,6 +1,6 @@
-const { jira, exec, extractVersionComponents } = require('../utils/');
+const { jira, exec, extractVersionComponents, isLegacyVersion, getNextPatches } = require('../utils/');
 const { makeGetTicketsFromReleaseRange, makeFindIssues, makeCheckRelease, makeGetCustomerInfo } = require('./jira');
-const { makeGetLog, makeGetNextRelease } = require('./git');
+const { makeGetLog, makeGetNextRelease, makeGetBranchesFromTicket } = require('./git');
 const config = require('../config');
 const axios = require('axios');
 
@@ -10,6 +10,7 @@ const getLog = makeGetLog({ exec, config });
 const getTicketsFromReleaseRange = makeGetTicketsFromReleaseRange({ findIssues, getLog });
 const getNextRelease = makeGetNextRelease({ exec, config });
 const getCustomerInfo = makeGetCustomerInfo({ config, requests: axios, extractVersionComponents });
+const getBranchesFromTicket = makeGetBranchesFromTicket({ jira, config, getCustomerInfo, extractVersionComponents, isLegacyVersion, getNextPatches });
 
 module.exports = {
   findIssues,
@@ -17,5 +18,6 @@ module.exports = {
   getLog,
   getNextRelease,
   checkRelease,
-  getCustomerInfo
+  getCustomerInfo,
+  getBranchesFromTicket
 };

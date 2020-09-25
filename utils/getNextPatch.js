@@ -1,21 +1,45 @@
-const { exec } = require('./exec');
-const { config } = require('../config');
+const config = require('../config');
 const { extractVersionComponents } = require('./extractVersionComponents');
+const axios = require('axios');
 
 const getNextPatch = async ( version ) => {
-  const _v = extractVersionComponents(version);
-  const { mainVersion, subVersion } = _v;
-  if ( mainVersion === undefined ) throw new Error("Invalid Version Format");
-  const cmd = `git tag -l | grep  -iPo '(?<=${mainVersion}\.${subVersion}\.).+' | sort -n -r | head -1`;
-  const response = await exec({
-    cmd,
-    options: {
-      cwd: "/home/tnguye20/repo/enquesta"
+  try {
+
+    if ( version.indexOf("-rc") !== -1 ) return {};
+
+    const { mainVersion, subVersion } = extractVersionComponents(version);
+    const url = config.GITLAB_URL + "repository/tags";
+    const options = {
+      headers: {
+        "PRIVATE-TOKEN": config.GITLAB_TOKEN
+      }
+    };
+    const params = {
+      search: `${mainVersion}.${subVersion}.`
     }
-  });
-  let { status, stdout } = response;
-  if ( code !== 0 ) throw new Error("Can't retrieve latest patch");
-  return stdout;
+    const response = await axios.get(url, {
+      ...options,
+      params
+    });
+    const { status, data } = response;
+    if ( status === 200 ){
+      const latestPatch = data[0].name;
+      const nextPatch = Number(latestPatch.split(".").pop()) + 1;
+      return {
+        latest: latestPatch,
+        next: `${mainVersion}.${subVersion}.${nextPatch}`
+      };
+    }
+    return {};
+  } catch (err) {
+    console.log(err);
+    if ( err.response && err.response.data ){
+      // const { status } = err.response;
+      // const { errorMsg, errorTitle } = err.response.data;
+      return {};
+    }
+    throw err;
+  }
 }
 
 module.exports = {
