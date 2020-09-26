@@ -17,10 +17,19 @@ module.exports.makeGetBranchesFromTicket = ({
     try {
       const company = (fields[COMPANY_KEY] !== undefined ? fields[COMPANY_KEY].value : SS_COMPANY);
       let { versions } = fields;
-      versions = versions.map( version => version.name );
       const { customers } = await getCustomerInfo();
+
+      const genericBranch = "feature/" + key;
+      const {
+        gitMasterBranch,
+        gitDevelopBranch,
+        enQuestaVersion
+      } = customers[company];
+
+      versions = (versions.length > 0) ? versions.map( version => version.name ) : [enQuestaVersion];
       const { type } = options;
       let gitBranches = [];
+
       if ( customers[company] !== undefined ){
         switch(type) {
           case RELEASE:
@@ -28,6 +37,18 @@ module.exports.makeGetBranchesFromTicket = ({
           case RELEASEFIX:
             break;
           case HOTFIX:
+            // Loop through affected version to generate hotfix branches
+            const nextPatches = await getNextPatches(versions);
+            nextPatches.forEach( nextPatch => {
+              const { latest, next } = nextPatch;
+              if( next !== undefined ){
+                gitBranches.push({
+                  branch: `hotfix/${latest}/${key}`,
+                  sourceBranch: latest
+                });
+              }
+            });
+
             // Check to see if there is a pending release ticket and branch off of that instead
             const jql = `company = "${company}" and project = "CSUP" and status not in ('Finalize Release', 'Closed', 'Closed_', 'Terminated') and issuetype = "Release" and summary ~ "Release Ticket"`;
             const response = await jira.searchJira(jql);
@@ -44,26 +65,21 @@ module.exports.makeGetBranchesFromTicket = ({
                   sourceBranch
                 });
               });
-            }
-            // Loop through affected version to generate hotfix branches
-            const nextPatches = await getNextPatches(versions);
-            nextPatches.forEach( nextPatch => {
-              const { latest, next } = nextPatch;
-              if( next !== undefined ){
+
+              // If it's a legacy cusomter, create the latest version branch anyways
+              if ( isLegacyVersion(enQuestaVersion) ){
                 gitBranches.push({
-                  branch: `hotfix/${latest}/${key}`,
-                  sourceBranch: latest
+                  branch: genericBranch,
+                  sourceBranch: gitDevelopBranch,
+                  gitDevelopBranch,
+                  gitMasterBranch
                 });
               }
-            });
-            break;
+
+              // Switch break
+              break;
+            }
           default:
-            const genericBranch = "feature/" + key;
-            const {
-              gitMasterBranch,
-              gitDevelopBranch,
-              enQuestaVersion
-            } = customers[company];
             gitBranches.push({
               branch: genericBranch,
               sourceBranch: gitDevelopBranch,
