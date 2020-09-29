@@ -20,9 +20,6 @@ jiraRouter.post("/test", extractTicketInfo, async (req, res) => {
   try{
     branchNames = await getBranchesFromTicket({ ticket });
     const { customers } = await getCustomerInfo();
-    // const response = await gitMakeBranch(branchNames);
-
-    const JIRA_URL = `${config.JIRA_PROTOCOL}://${config.JIRA_SERVER}${ config.JIRA_PORT ? ":" + config.JIRA_PORT : ''}`;
     issue = {
       fields: {
         project: {
@@ -41,7 +38,7 @@ jiraRouter.post("/test", extractTicketInfo, async (req, res) => {
         [config.REPLICATION_NOTE]: "No replication required", // Replication Notes **
         [config.FUNCTIONAL_AREA]: {
             "id": "11502",
-            "self": `${JIRA_URL}/rest/api/2/customFieldOption/11502`,
+            "self": `${config.JIRA_URL}/rest/api/2/customFieldOption/11502`,
             "value": "Unsure / Not List"
         } // Functional Area ** - None
       }
@@ -58,7 +55,7 @@ jiraRouter.post("/test", extractTicketInfo, async (req, res) => {
       console.log("Can add Company. Slamming it in there.");
       issue[config.COMPANY_KEY] = {
         id: customers[ticket.company].id,
-        self: `${JIRA_URL}/rest/api/2/customFieldOption/${customers[ticket.company].id}`,
+        self: `${config.JIRA_URL}/rest/api/2/customFieldOption/${customers[ticket.company].id}`,
         value: ticket.company
       };
       allowToAddCompany = true;
@@ -66,8 +63,9 @@ jiraRouter.post("/test", extractTicketInfo, async (req, res) => {
       console.log("Can't add Company. Will update the issue with that data once created instead");
     }
 
-    // const addResponse = await jira.addNewIssue(issue);
-    // const hotfixKey = addResponse.key;
+    const responses = await Promise.all([jira.addNewIssue(issue), gitMakeBranch(branchNames)]);
+    const [ addResponse, gitResponse ] = responses;
+    const hotfixKey = addResponse.key;
 
     const update = {
       fields: {
@@ -84,7 +82,7 @@ jiraRouter.post("/test", extractTicketInfo, async (req, res) => {
       };
     }
 
-    const updateResponse = await jira.updateIssue("CSUP-17246", update);
+    const updateResponse = await jira.updateIssue(hotfixKey, update);
 
     res.json(updateResponse);
   } catch(err) {

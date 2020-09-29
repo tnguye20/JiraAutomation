@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-module.exports = {
+const config = {
   versionPattern: /(\d+\.)(\d+)(\.\d+|\-rc)/g,
   ticketPattern: /(([A-Z]{2,})-\d{1,})/g,
   csupPattern: /\[((CSUP)-\d{1,})\]/g,
@@ -54,3 +54,7 @@ module.exports = {
   RELEASE: "release",
   SHOWSTOPPER: "Showstopper",
 }
+
+config.JIRA_URL = `${config.JIRA_PROTOCOL}://${config.JIRA_SERVER}${ config.JIRA_PORT ? ":" + config.JIRA_PORT : ''}`;
+
+module.exports = config;
