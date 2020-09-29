@@ -5,7 +5,6 @@ module.exports.makeFindIssuesController = ({ findIssues }) => {
       throw new Error(`Array of Issues required, ${typeof issues} provided`);
     }
     const response = await findIssues(issues);
-    console.log(response);
     if ( response.error ){
       throw new Error(response.errorMsg);
     }

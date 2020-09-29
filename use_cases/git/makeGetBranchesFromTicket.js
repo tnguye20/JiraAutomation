@@ -6,17 +6,14 @@ module.exports.makeGetBranchesFromTicket = ({
   extractVersionComponents,
   getNextPatches
 }) => {
-  return async ({ key, fields, options }) => {
+  return async ({ ticket }) => {
     const {
-      COMPANY_KEY,
-      SS_COMPANY,
       RELEASE,
       HOTFIX,
       RELEASEFIX
     } = config;
     try {
-      const company = (fields[COMPANY_KEY] !== undefined ? fields[COMPANY_KEY].value : SS_COMPANY);
-      let { versions } = fields;
+      let { key, versions, company, options } = ticket
       const { customers } = await getCustomerInfo();
 
       const genericBranch = "feature/" + key;
@@ -26,12 +23,11 @@ module.exports.makeGetBranchesFromTicket = ({
         enQuestaVersion
       } = customers[company];
 
-      versions = (versions.length > 0) ? versions.map( version => version.name ) : [enQuestaVersion];
-      const { type } = options;
+      versions = (versions.length > 0) ? versions : [enQuestaVersion];
       let gitBranches = [];
 
       if ( customers[company] !== undefined ){
-        switch(type) {
+        switch(options.type) {
           case RELEASE:
             break;
           case RELEASEFIX:
