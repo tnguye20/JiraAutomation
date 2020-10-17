@@ -8,16 +8,18 @@ module.exports.exec = async ({
   },
 }) => {
   try {
-    const { stdout, stderr} = await _exec(cmd, options);
+    const { stdout, stderr } = await _exec(cmd, options);
     if(stderr.length > 0) throw new Error(stderr);
     return {
       status: 0,
-      stdout,
+      stdout: stdout.replace("\n", ""),
       stderr
     };
   } catch (err) {
-    console.log(err);
+    if ( !options.suppress ){
+      console.log(err);
+    }
     const { code, stderr, cmd, stdout } = err;
-    return { code, stderr, cmd, stdout };
+    return { code, stderr, cmd, stdout, status: code };
   }
 }
